@@ -1,7 +1,7 @@
-"""
-PS-ETW Engine Build-Up Tracker — entry point.
+# -*- coding: utf-8 -*-
+"""PS-ETW Engine Build-Up Tracker - entry point.
 
-Run from repository root: python main.py
+Run from repository root: python main.py  (Python 3 required)
 Requires: Python 3.10+, Tkinter (stdlib), openpyxl for Excel exports.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ def main():
     init_db()
 
     root = tk.Tk()
-    root.title("PS-ETW Engine Build-Up Tracker — Bosch RBIN PS-ETW1")
+    root.title("PS-ETW Engine Build-Up Tracker - Bosch RBIN PS-ETW1")
 
     try:
         root.iconbitmap(str(Path(__file__).resolve().parent / "ps_etw_tracker" / "assets" / "icon.ico"))
