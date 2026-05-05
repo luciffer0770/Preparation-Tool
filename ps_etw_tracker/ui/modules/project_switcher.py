@@ -53,7 +53,8 @@ class ProjectSwitcherDrawer:
 
         def _mw(e):
             canvas.yview_scroll(-1 * (e.delta // 120), "units")
-        canvas.bind_all("<MouseWheel>", _mw)
+        canvas.bind("<MouseWheel>", _mw)
+        canvas.bind("<Enter>", lambda e: canvas.focus_set())
 
         self.canvas = canvas
         self._refresh_list()
@@ -88,11 +89,18 @@ class ProjectSwitcherDrawer:
         tk.Label(card, text=p.get("customer", ""), font=F["small"],
                  bg=bg, fg=C["muted"]).pack(anchor="w")
 
-        bar_outer = tk.Frame(card, bg=C["border"], height=4)
+        bar_outer = tk.Frame(card, bg=C["border"], height=5)
         bar_outer.pack(fill="x", pady=(4, 0))
         pct = p.get("pct", 0)
-        bar_fill = tk.Frame(bar_outer, bg=C["red"], height=4)
-        bar_fill.place(relwidth=pct / 100, relheight=1)
+        bc = tk.Canvas(bar_outer, height=5, bg=C["border"], highlightthickness=0)
+        bc.pack(fill="x")
+
+        def draw_prog(_e=None, p=pct, canvas=bc):
+            canvas.delete("all")
+            w = max(canvas.winfo_width(), 2)
+            canvas.create_rectangle(0, 0, w * p / 100.0, 5, fill=C["red"], outline="")
+
+        bc.bind("<Configure>", draw_prog)
 
         r3 = tk.Frame(card, bg=bg)
         r3.pack(fill="x", pady=(4, 0))
@@ -277,12 +285,11 @@ class ProjectEditDialog:
     def _save(self):
         from backend.scheduler import run_schedule_and_save
         data = {k: v.get() for k, v in self.vars.items()}
-        old_start = self.proj.get("start_date", "")
         set_clause = ", ".join(f"{k}=?" for k in data)
         vals = list(data.values()) + [self.proj["id"]]
         db_execute(f"UPDATE projects SET {set_clause}, updated_at=datetime('now') WHERE id=?",
                    vals)
-        if data.get("start_date") != old_start:
+        if data.get("start_date"):
             run_schedule_and_save(self.proj["id"])
         self.win.destroy()
         self.app.refresh()

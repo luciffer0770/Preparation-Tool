@@ -11,6 +11,10 @@ def parse_date(s) -> date | None:
         return s
     s = str(s).strip()
     try:
+        # ISO YYYY-MM-DD
+        if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+            y, mo, da = int(s[:4]), int(s[5:7]), int(s[8:10])
+            return date(y, mo, da)
         parts = s.split("-")
         if len(parts) == 3:
             d = int(parts[0])
@@ -100,7 +104,8 @@ def compute_derived(activities: list[dict], target_finish_str: str,
         if pf and target:
             act["float_d"] = max(0, count_wd(pf, target) - 1)
         else:
-            act["float_d"] = 0
+            # No target date: do not treat as zero float (avoids false WARN on all rows)
+            act["float_d"] = 999
         if pf and af and af > pf:
             act["delay_d"] = count_wd(pf, af) - 1
         elif status in ("Delayed", "Blocked") and pf and today > pf:
@@ -110,23 +115,38 @@ def compute_derived(activities: list[dict], target_finish_str: str,
         f = act.get("float_d") or 0
         if status in ("Blocked", "Delayed") or f < 0:
             act["alert_level"] = "CRIT"
-        elif status not in ("Complete",) and f <= warn:
+        elif target and status not in ("Complete",) and f <= warn:
             act["alert_level"] = "WARN"
         else:
             act["alert_level"] = "OK"
     return activities
 
 
+def ensure_schedule_populated(project_id: str):
+    """Run auto-schedule if project has start_date but activities lack plan dates."""
+    from backend.database import db_fetchone, get_activities
+
+    proj = db_fetchone("SELECT * FROM projects WHERE id=?", (project_id,))
+    if not proj or not str(proj.get("start_date") or "").strip():
+        return
+    acts = get_activities(project_id)
+    if not acts:
+        return
+    if any(not str(a.get("plan_start") or "").strip() for a in acts):
+        run_schedule_and_save(project_id)
+
+
 def run_schedule_and_save(project_id: str):
     from backend.database import db_fetchone, get_activities, db_execute, sync_delays, get_conn
 
     proj = db_fetchone("SELECT * FROM projects WHERE id=?", (project_id,))
-    if not proj or not proj.get("start_date"):
+    if not proj or not str(proj.get("start_date") or "").strip():
         return
     acts = get_activities(project_id)
     acts = auto_schedule(acts, proj["start_date"], int(proj.get("working_hrs_day") or 9))
+    tf = proj.get("target_finish") or proj.get("forecast_finish") or ""
     acts = compute_derived(
-        acts, proj.get("target_finish", ""),
+        acts, tf,
         int(proj.get("warn_threshold") or 3),
         int(proj.get("crit_threshold") or 1))
     conn = get_conn()

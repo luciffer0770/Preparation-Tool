@@ -244,7 +244,8 @@ def create_project_with_activities(data: dict) -> str:
     if data.get("start_date"):
         acts = auto_schedule(acts, data["start_date"], int(data.get("working_hrs", 9)))
         acts = compute_derived(
-            acts, data.get("target_finish", ""),
+            acts,
+            data.get("target_finish") or data.get("forecast_finish") or "",
             int(data.get("warn", 3)),
             int(data.get("crit", 1)))
 

@@ -5,6 +5,7 @@ from ui.theme import apply_theme, C, F
 from ui.widgets.topbar import TopBar
 from ui.widgets.sidebar import Sidebar
 from ui.widgets.toast import ToastManager
+from ui.global_scroll import bind_global_mousewheel
 from backend.database import (
     get_projects,
     get_activities,
@@ -14,17 +15,25 @@ from backend.database import (
     get_config,
     recompute_material_alerts,
 )
+from backend.scheduler import ensure_schedule_populated
 
 
 class PSETWApp:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("PS-ETW Engine Build-Up Tracker — Bosch RBIN PS-ETW1")
-        self.root.minsize(1280, 768)
+        self.root.title("PS-ETW Engine Build-Up Tracker - Bosch RBIN PS-ETW1")
+        self.root.minsize(1100, 700)
         self.root.geometry("1440x900")
         self.root.configure(bg=C["bg"])
 
+        try:
+            if sys.platform == "win32":
+                self.root.state("zoomed")
+        except tk.TclError:
+            pass
+
         apply_theme()
+        bind_global_mousewheel(self.root)
 
         self.active_project_id: str | None = None
         self.active_tab: str = "dashboard"
@@ -57,7 +66,7 @@ class PSETWApp:
         self.main_frame.pack(side="left", fill="both", expand=True)
 
         self.content_frame = tk.Frame(self.main_frame, bg=C["bg"])
-        self.content_frame.pack(side="top", fill="both", expand=True)
+        self.content_frame.pack(fill="both", expand=True)
 
     def _load_all(self):
         self.config = get_config()
@@ -76,6 +85,7 @@ class PSETWApp:
         if not self.active_project_id:
             return
         recompute_material_alerts(self.active_project_id)
+        ensure_schedule_populated(self.active_project_id)
         self.activities = get_activities(self.active_project_id)
         self.materials = get_materials(self.active_project_id)
         self.delays = get_delays(self.active_project_id)
@@ -112,37 +122,8 @@ class PSETWApp:
         for widget in self.content_frame.winfo_children():
             widget.destroy()
 
-        canvas = tk.Canvas(self.content_frame, bg=C["bg"], highlightthickness=0)
-        vscroll = ttk.Scrollbar(self.content_frame, orient="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=vscroll.set)
-        vscroll.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
-
-        inner = tk.Frame(canvas, bg=C["bg"])
-        inner.bind("<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas_window = canvas.create_window((0, 0), window=inner, anchor="nw")
-
-        def on_canvas_resize(e):
-            canvas.itemconfig(canvas_window, width=e.width)
-        canvas.bind("<Configure>", on_canvas_resize)
-
-        def _on_mousewheel(e):
-            canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
-
-        def _on_mousewheel_linux_up(e):
-            canvas.yview_scroll(-1, "units")
-
-        def _on_mousewheel_linux_down(e):
-            canvas.yview_scroll(1, "units")
-
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
-        if sys.platform.startswith("linux"):
-            canvas.bind_all("<Button-4>", _on_mousewheel_linux_up)
-            canvas.bind_all("<Button-5>", _on_mousewheel_linux_down)
-
-        pad = tk.Frame(inner, bg=C["bg"])
-        pad.pack(fill="both", expand=True, padx=16, pady=12)
+        pad = tk.Frame(self.content_frame, bg=C["bg"])
+        pad.pack(fill="both", expand=True, padx=12, pady=10)
 
         if not self.active_project_id and self.active_tab not in ("all_projects", "settings"):
             self._render_welcome(pad)

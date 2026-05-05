@@ -56,8 +56,7 @@ class ReportsModule:
             ico_frame.pack(side="left", padx=(0, 12))
             ico_frame.pack_propagate(False)
             tk.Label(ico_frame, text=ico, font=(F["h1"][0], 18),
-                     bg=C["red_light"]).place(relx=0.5, rely=0.5,
-                                               anchor="center")
+                     bg=C["red_light"]).pack(expand=True)
 
             text_f = tk.Frame(card, bg=C["card"])
             text_f.pack(side="left", fill="both", expand=True)

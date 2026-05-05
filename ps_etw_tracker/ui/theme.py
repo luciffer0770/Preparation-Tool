@@ -6,18 +6,18 @@ C = {
     "red_dark":     "#B71C1C",
     "red_light":    "#FFEBEE",
     "black":        "#000000",
-    "bg":           "#FAFAFA",
+    "bg":           "#F0F4F8",
     "card":         "#FFFFFF",
-    "border":       "#E8E8E8",
-    "row_alt":      "#F5F5F5",
-    "text":         "#424242",
-    "muted":        "#9E9E9E",
+    "border":       "#E0E4E8",
+    "row_alt":      "#F5F7FA",
+    "text":         "#37474F",
+    "muted":        "#78909C",
     "amber":        "#E65100",
     "amber_light":  "#FFF8E1",
     "amber_row":    "#FFF3E0",
     "green":        "#1B5E20",
     "green_light":  "#E8F5E9",
-    "blue":         "#0D3C6B",
+    "blue":         "#0D47A1",
     "blue_mid":     "#1565C0",
     "blue_light":   "#E3F2FD",
     "purple":       "#4A148C",
@@ -25,6 +25,7 @@ C = {
     "steel":        "#37474F",
     "steel_light":  "#ECEFF1",
     "white":        "#FFFFFF",
+    "accent_bg":    "#E8EAF6",
 }
 
 STATUS_BG = {
@@ -68,6 +69,7 @@ F = {
 
 
 def apply_theme():
+    """Configure ttk styles. Use integer padding only (tuple padding breaks some Tk builds)."""
     style = ttk.Style()
     style.theme_use("clam")
 
@@ -99,7 +101,7 @@ def apply_theme():
 
     style.configure("Primary.TButton",
         background=C["red"], foreground="white",
-        font=F["small_b"], padding=(10, 6),
+        font=F["small_b"], padding=10,
         borderwidth=0, relief="flat")
     style.map("Primary.TButton",
         background=[("active", "#C50006"), ("pressed", "#A00005")],
@@ -107,33 +109,33 @@ def apply_theme():
 
     style.configure("Secondary.TButton",
         background=C["card"], foreground="#111111",
-        font=F["small_b"], padding=(10, 6),
+        font=F["small_b"], padding=10,
         borderwidth=1, relief="solid")
     style.map("Secondary.TButton",
         background=[("active", C["row_alt"]), ("pressed", C["border"])])
 
     style.configure("Ghost.TButton",
         background=C["bg"], foreground=C["text"],
-        font=F["small"], padding=(6, 4),
+        font=F["small"], padding=6,
         borderwidth=0, relief="flat")
     style.map("Ghost.TButton",
         background=[("active", C["row_alt"])])
 
     style.configure("Danger.TButton",
         background=C["card"], foreground=C["red_dark"],
-        font=F["small_b"], padding=(10, 6),
+        font=F["small_b"], padding=10,
         borderwidth=1, relief="solid")
     style.map("Danger.TButton",
         background=[("active", C["red_light"])])
 
     style.configure("NavActive.TButton",
         background=C["steel"], foreground="white",
-        font=F["body_b"], padding=(10, 8),
+        font=F["body_b"], padding=10,
         borderwidth=0, relief="flat", anchor="w")
 
     style.configure("NavItem.TButton",
         background=C["steel"], foreground=C["steel_light"],
-        font=F["body"], padding=(10, 8),
+        font=F["body"], padding=10,
         borderwidth=0, relief="flat", anchor="w")
     style.map("NavItem.TButton",
         background=[("active", "#455A64")])
@@ -141,29 +143,29 @@ def apply_theme():
     style.configure("Treeview",
         background=C["card"],
         foreground=C["text"],
-        rowheight=30,
+        rowheight=28,
         fieldbackground=C["card"],
         font=F["body"],
         borderwidth=0,
         relief="flat")
     style.configure("Treeview.Heading",
-        background="#FAFAFA",
-        foreground=C["muted"],
+        background=C["steel_light"],
+        foreground=C["steel"],
         font=F["small_b"],
         relief="flat",
         borderwidth=1,
-        padding=(8, 6))
+        padding=8)
     style.map("Treeview",
         background=[("selected", C["blue_light"])],
         foreground=[("selected", C["blue"])])
     style.map("Treeview.Heading",
-        background=[("active", C["row_alt"])])
+        background=[("active", C["border"])])
 
     style.configure("TEntry",
         fieldbackground=C["card"],
         foreground="#111111",
         font=F["body"],
-        padding=(6, 5),
+        padding=6,
         borderwidth=1,
         relief="solid")
     style.map("TEntry",
@@ -173,20 +175,20 @@ def apply_theme():
         fieldbackground=C["card"],
         foreground="#111111",
         font=F["body"],
-        padding=(6, 5))
+        padding=6)
 
     style.configure("TSpinbox",
         fieldbackground=C["card"],
         foreground="#111111",
         font=F["body"],
-        padding=(6, 5))
+        padding=6)
 
     style.configure("TScrollbar",
         background=C["bg"],
-        troughcolor=C["bg"],
+        troughcolor=C["row_alt"],
         borderwidth=0,
-        arrowsize=12)
+        arrowsize=11)
     style.map("TScrollbar",
-        background=[("active", "#C7C7C7"), ("!active", "#E0E0E0")])
+        background=[("active", "#B0BEC5"), ("!active", "#CFD8DC")])
 
     style.configure("TSeparator", background=C["border"])

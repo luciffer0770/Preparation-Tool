@@ -243,13 +243,16 @@ class DashboardModule:
                      font=F["small"], width=8,
                      bg=C["card"], fg=C["muted"], anchor="e").pack(side="left")
 
-            bar_f = tk.Frame(row, bg=C["row_alt"],
-                              height=8)
-            bar_f.pack(side="left", fill="x", expand=True, padx=6)
-
             pct = int((stats["done"] / stats["total"]) * 100) if stats["total"] else 0
-            fill = tk.Frame(bar_f, bg=C["red"], height=8)
-            fill.place(relwidth=pct / 100, relheight=1)
+            bar_can = tk.Canvas(row, height=10, bg=C["row_alt"], highlightthickness=0)
+            bar_can.pack(side="left", fill="x", expand=True, padx=6)
+
+            def draw_pb(_e=None, p=pct, c=bar_can):
+                c.delete("all")
+                w = max(c.winfo_width(), 2)
+                c.create_rectangle(0, 1, w * p / 100.0, 9, fill=C["red"], outline="")
+
+            bar_can.bind("<Configure>", draw_pb)
 
             tk.Label(row, text=f"{pct}%", font=F["small"], width=5,
                      bg=C["card"], fg=C["text"], anchor="e").pack(side="left")
@@ -280,7 +283,8 @@ class DashboardModule:
                 d = a.get("delay_d") or 1
                 alerts.append(("CRIT", a["activity_name"],
                                 f"Delayed by {d} day(s). Float: {a.get('float_d',0)}d"))
-            elif a["status"] not in ("Complete",) and (a.get("float_d") or 0) <= 2:
+            elif a["status"] not in ("Complete",) and (a.get("float_d") or 0) <= 2 \
+                    and (a.get("float_d") or 999) < 900:
                 alerts.append(("WARN", a["activity_name"],
                                 f"Only {a.get('float_d',0)} day(s) of float remaining."))
         for m in mats:

@@ -49,9 +49,12 @@ class DelaysModule:
 
         split = tk.Frame(self.parent, bg=C["bg"])
         split.pack(fill="both", expand=True)
+        split.grid_columnconfigure(0, weight=3)
+        split.grid_columnconfigure(1, weight=1)
+        split.grid_rowconfigure(0, weight=1)
 
         left = tk.Frame(split, bg=C["card"])
-        left.pack(side="left", fill="both", expand=True)
+        left.grid(row=0, column=0, sticky="nsew")
         left.configure(highlightbackground=C["border"], highlightthickness=1)
 
         cols = ("Activity", "Phase", "Owner", "Plan Start", "Plan Finish", "Float", "%", "Status")
@@ -80,8 +83,8 @@ class DelaysModule:
             ))
 
         detail = tk.Frame(split, bg=C["card"], width=420)
-        detail.pack(side="right", fill="y", padx=(8, 0))
-        detail.pack_propagate(False)
+        detail.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        detail.grid_propagate(True)
         detail.configure(highlightbackground=C["border"], highlightthickness=1)
 
         tk.Label(detail, text="Delay action (auto-saves)", font=F["h3"],
