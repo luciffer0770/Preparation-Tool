@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.db
+.ps_etw.db-journal
+.ps_etw.db-wal
+.ps_etw.db-shm
+exports/*.xlsx
+exports/*.ps
