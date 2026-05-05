@@ -1,169 +1,174 @@
-# ps_etw_tracker/backend/models.py — 91-activity master template
+# ps_etw_tracker/backend/models.py — Master activity template (PS-ETW build-up)
 from __future__ import annotations
+
+# Phase keys must match MECH_PHASES / ELEC_PHASES below.
+# Hours are est_hours used by auto_schedule (working-day bin-pack).
 
 ACT_TEMPLATES = {
     "Engine Receipt": [
-        ("Engine unloading & safe handling", "Mech", 9),
-        ("Visual inspection & damage check", "Mech", 4),
-        ("Engine serial & configuration verification", "Mech", 3),
-        ("Spare parts accountability & tagging", "Mech", 4),
+        ("Engine unloading & safe handling", "Mech", 2),
+        ("Visual inspection & damage check", "Mech", 1),
+        ("Engine serial & configuration verification", "Mech", 1),
+        ("Spare parts accountability & tagging", "Mech", 1),
     ],
-    "Trolley Prep": [("Trolley cleaning & preparation", "Mech", 6)],
+    "Trolley Prep": [
+        ("Trolley cleaning & preparation", "Mech", 2),
+    ],
     "Mounting": [
-        ("Review engine mounting drawings", "Mech", 4),
-        ("Mounting bracket design", "Mech", 6),
-        ("Mounting bracket fabrication", "Mech", 9),
-        ("Side mounting bracket fabrication", "Mech", 6),
-        ("Damper section verification", "Mech", 4),
+        ("Review engine mounting drawings", "Mech", 2),
+        ("Mounting bracket design", "Mech", 3),
+        ("Mounting bracket fabrication", "Mech", 6),
+        ("Side mounting bracket fabrication", "Mech", 4),
+        ("Damper section verification", "Mech", 1),
     ],
     "Alignment": [
-        ("Screw jack & damper section installation", "Mech", 5),
-        ("Engine mounting on trolley", "Mech", 9),
-        ("Engine-dyno alignment", "Mech", 6),
+        ("Screw jack & damper section installation", "Mech", 2),
+        ("Engine mounting on trolley", "Mech", 3),
+        ("Engine-dyno alignment", "Mech", 3),
     ],
     "Drive System": [
-        ("Drive plate drawing review", "Mech", 3),
-        ("Drive plate machining", "Mech", 9),
-        ("Shaft fitment & verification", "Mech", 6),
+        ("Drive plate drawing review", "Mech", 1),
+        ("Drive plate machining", "Mech", 4),
+        ("Shaft fitment & verification", "Mech", 2),
     ],
     "Starter": [
-        ("Starter motor inspection", "Mech", 3),
-        ("Starter motor fitment", "Mech", 5),
+        ("Starter motor fitment", "Mech", 2),
     ],
     "Crank Pulley": [
-        ("Crank pulley modification", "Mech", 4),
-        ("Crank pulley torque verification", "Mech", 3),
+        ("Crank pulley modification", "Mech", 3),
     ],
     "Encoder": [
-        ("Encoder flange design", "Mech", 4),
-        ("Encoder flange machining", "Mech", 9),
-        ("Encoder pulley machining", "Mech", 6),
-        ("Angle encoder mounting", "Mech", 4),
+        ("Encoder flange design", "Mech", 2),
+        ("Encoder flange machining", "Mech", 3),
+        ("Encoder pulley machining", "Mech", 2),
+        ("Angle encoder mounting", "Mech", 2),
     ],
     "Measurement": [
-        ("Measurement layout finalization", "Mech", 4),
-        ("Combustion sensor boss machining", "Mech", 9),
+        ("Measurement layout finalization", "Mech", 2),
+        ("Combustion sensor boss machining", "Mech", 4),
     ],
     "Air Circuit": [
-        ("Air filter installation", "Mech", 3),
-        ("Air filter to compressor inlet hose routing", "Mech", 6),
-        ("Compressor outlet to intercooler hose", "Mech", 6),
-        ("Intercooler to intake manifold hose", "Mech", 6),
+        ("Air filter installation", "Mech", 1),
+        ("Air filter to compressor hose routing", "Mech", 2),
+        ("Compressor to intercooler routing", "Mech", 2),
+        ("TVA / PFM / HFM / Dump valve fitment", "Mech", 2),
+        ("Intercooler to intake routing", "Mech", 2),
+        ("Turbo to intercooler support fabrication", "Mech", 2),
+        ("Intercooler routing supports", "Mech", 2),
     ],
     "CCV System": [
-        ("CCV assembly & circuit with NRV", "Mech", 5),
+        ("CCV assembly with NRV", "Mech", 2),
     ],
     "EGR System": [
-        ("EGR valve assembly", "Mech", 5),
-        ("EGR cooler assembly", "Mech", 5),
-        ("EGR cooler to intake manifold pipe", "Mech", 5),
+        ("EGR valve assembly", "Mech", 2),
+        ("EGR cooler assembly", "Mech", 2),
+        ("EGR cooler to intake pipe", "Mech", 2),
+        ("Exhaust to EGR cooler pipe", "Mech", 2),
     ],
     "Exhaust Circuit": [
-        ("Exhaust manifold installation", "Mech", 5),
-        ("Catcon installation", "Mech", 5),
-        ("TC exit flange adaptation", "Mech", 6),
+        ("Exhaust manifold installation", "Mech", 2),
+        ("Catcon installation", "Mech", 2),
+        ("TC exit flange adaptation", "Mech", 2),
     ],
     "Turbo System": [
-        ("Turbocharger installation", "Mech", 5),
-        ("TC oil inlet banjo & drain gasket", "Mech", 4),
-        ("Turbo wastegate setup", "Mech", 4),
+        ("Turbocharger installation", "Mech", 3),
+        ("TC oil inlet bolt & drain gasket", "Mech", 1),
     ],
     "Lubrication": [
-        ("Lube oil filling & sump verification", "Mech", 3),
-        ("Oil lines install & leak test", "Mech", 5),
+        ("Lube oil filling & sump verification", "Mech", 1),
+        ("Oil filter installation", "Mech", 1),
     ],
     "Cooling": [
-        ("Thermostat gasket fitment", "Mech", 3),
-        ("Water inlet/outlet adaptation", "Mech", 6),
-        ("Coolant fill & bleed", "Mech", 4),
+        ("Thermostat gasket fitment", "Mech", 1),
+        ("Water inlet/outlet adaptation", "Mech", 3),
     ],
     "Fuel System": [
-        ("CNG regulator, hoses & filters installation", "Mech", 7),
-        ("Fuel rail inspection", "Mech", 3),
-        ("Pressure test fuel system", "Mech", 5),
+        ("CNG regulator, hoses & filters", "Mech", 3),
     ],
     "Belt Drive": [
-        ("Drive belt installation", "Mech", 3),
-        ("Belt tension setup & check", "Mech", 4),
+        ("Drive belt installation", "Mech", 1),
     ],
     "Gaskets": [
-        ("Intake, exhaust, EGR, TC gasket installation", "Mech", 5),
-        ("Gasket torque verification", "Mech", 3),
+        ("Intake, exhaust, EGR, TC gasket install", "Mech", 2),
     ],
     "Readiness for Mech": [
-        ("Mechanical readiness declaration", "Mech", 4),
+        ("Mechanical readiness declaration", "Mech", 1),
     ],
     "Wiring Harness": [
-        ("Check according to terminal diagram", "Inst", 3),
-        ("W/H to BOB to ECU routing", "Inst", 7),
-        ("BOB tapping connections", "Inst", 5),
+        ("Check as per terminal diagram", "Inst", 2),
+        ("W/H to BOB to ECU routing", "Inst", 2),
+        ("BOB tapping connections", "Inst", 2),
     ],
     "ECU": [
-        ("ECU mounting & fixation", "Inst", 4),
-        ("ECU power cable installation", "Inst", 3),
-        ("ECU power circuit validation", "Inst", 3),
+        ("ECU mounting", "Inst", 2),
+        ("ECU power cable installation", "Inst", 1),
+        ("ECU power validation", "Inst", 1),
     ],
     "Communication": [
-        ("CAN communication setup", "Inst", 5),
-        ("CAN termination check", "Inst", 3),
+        ("CAN setup", "Inst", 1),
     ],
     "Power": [
-        ("DC function box installation", "Inst", 4),
-        ("AC function box installation", "Inst", 4),
-        ("Terminal box with 7.5A fuse installation", "Inst", 3),
+        ("DC function box", "Inst", 2),
+        ("AC function box", "Inst", 2),
+        ("Terminal box + fuse", "Inst", 1),
     ],
     "Pressure Sensors": [
-        ("Liquid media pressure sensor installation", "Inst", 4),
-        ("Air media pressure sensor installation", "Inst", 4),
-        ("Low pressure transmitter 10 bar cal", "Inst", 4),
-        ("Pressure transmitter power cable routing", "Inst", 3),
+        ("Liquid media sensor install", "Inst", 2),
+        ("Air media sensor install", "Inst", 2),
+        ("10 bar calibration", "Inst", 1),
+        ("6 bar calibration", "Inst", 2),
+        ("Power cable routing", "Inst", 2),
     ],
     "Pressure Lines": [
-        ("Medium temperature pressure pipe", "Inst", 4),
-        ("High temperature braided pipe", "Inst", 4),
-        ("Pressure pipe caps installation", "Inst", 3),
+        ("Medium temp pipe", "Inst", 2),
+        ("High temp braided pipe", "Inst", 2),
+        ("Pipe caps", "Inst", 1),
     ],
     "Temperature Sensors": [
-        ("RTD installation", "Inst", 4),
-        ("RTD extension cable routing", "Inst", 3),
-        ("Thermocouple installation", "Inst", 4),
+        ("RTD install", "Inst", 2),
+        ("RTD cable routing", "Inst", 1),
+        ("Thermocouple install", "Inst", 2),
+        ("TC cable + cold junction", "Inst", 1),
     ],
     "Encoder Elec": [
-        ("Angle encoder installation", "Inst", 4),
+        ("Angle encoder install", "Inst", 2),
+        ("Signal validation", "Inst", 1),
     ],
     "EGT": [
-        ("EGT sensor installation", "Inst", 5),
-        ("DOC/DPF/SCR/Brick instrumentation", "Inst", 5),
+        ("EGT sensor install", "Inst", 3),
+        ("DOC/DPF/SCR instrumentation", "Inst", 2),
     ],
     "Lambda": [
-        ("Lambda sensor external integration", "Inst", 4),
+        ("Lambda sensor integration", "Inst", 2),
     ],
     "Combustion": [
-        ("Combustion pressure sensor installation", "Inst", 6),
+        ("Combustion sensor install", "Inst", 3),
+        ("Clamp meter verification", "Inst", 1),
     ],
     "Drive by Wire": [
-        ("Accelerator pedal installation", "Inst", 4),
+        ("Accelerator pedal install", "Inst", 2),
+        ("Calibration", "Inst", 2),
     ],
     "Fuel Control": [
-        ("EKP circuit installation", "Inst", 5),
+        ("EKP circuit install", "Inst", 2),
+        ("EKP power routing", "Inst", 1),
     ],
     "Measurement Elec": [
-        ("Measurement box installation", "Inst", 4),
+        ("Measurement box install", "Inst", 1),
     ],
     "Routing": [
-        ("Cable tray installation", "Inst", 4),
-        ("Centre channel wiring arrangement", "Inst", 4),
+        ("Cable tray install", "Inst", 2),
+        ("Channel wiring", "Inst", 2),
+        ("Cable labeling", "Inst", 1),
     ],
     "ETAS": [
-        ("ETAS ES592 installation", "Inst", 3),
-        ("ETAS power cable connection", "Inst", 3),
-        ("ETAS CAN cable setup", "Inst", 4),
+        ("ES592 install", "Inst", 2),
+        ("Power cable", "Inst", 1),
+        ("CAN setup", "Inst", 1),
+        ("Clamp mounting", "Inst", 1),
     ],
     "Validation": [
-        ("Pre-power continuity check", "Inst", 4),
-        ("Power-on smoke test", "Inst", 4),
-        ("ECU communication validation", "Inst", 5),
-        ("Final electrical sign-off", "Inst", 4),
+        ("Electrical pre-check", "Inst", 2),
     ],
 }
 
@@ -182,6 +187,10 @@ ELEC_PHASES = [
 
 TECH_MECH = ["R. Sharma", "A. Kumar", "S. Patel", "M. Reddy", "K. Iyer"]
 TECH_ELEC = ["P. Nair", "D. Singh", "V. Rao", "N. Gupta", "T. Joshi"]
+
+
+def template_activity_count() -> int:
+    return sum(len(ACT_TEMPLATES.get(p, [])) for p in MECH_PHASES + ELEC_PHASES)
 
 
 def build_seed_activities(project_id: str) -> list[dict]:
